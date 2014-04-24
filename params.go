@@ -7,6 +7,8 @@ import (
 
 type Params url.Values
 
+var truthy []string = []string{"true", "t", "yes", "y", "on", "1"}
+
 func (p Params) Get(key string) string {
 	if p == nil {
 		return ""
@@ -27,6 +29,16 @@ func (p Params) Int64(key string) int64 {
 
 func (p Params) Int32(key string) int32 {
 	return int32(p.Int64(key))
+}
+
+func (p Params) Bool(key string) bool {
+	s := p.Get(key)
+	for _, t := range truthy {
+		if s == t {
+			return true
+		}
+	}
+	return false
 }
 
 func (p Params) Map() (result map[string]string) {
