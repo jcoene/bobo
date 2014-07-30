@@ -17,6 +17,8 @@ type Error struct {
 	Error string `json:"error"`
 }
 
+var OK = map[string]string{"status": "ok"}
+
 type ErrorHandler func(error) http.Handler
 
 func WriteJSON(status int, obj interface{}) http.Handler {
@@ -35,4 +37,8 @@ func NotFound(err error) http.Handler {
 
 func ServerError(err error) http.Handler {
 	return WriteJSON(500, &Error{err.Error()})
+}
+
+func Ok() http.Handler {
+	return WriteJSON(200, OK)
 }

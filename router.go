@@ -1,7 +1,9 @@
 package bobo
 
 import (
+	"fmt"
 	"net/http"
+	"os"
 )
 
 type Middleware func(http.Handler) http.Handler
@@ -42,6 +44,25 @@ func (r *Router) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	handler.ServeHTTP(response, req)
+}
+
+func (r *Router) ListenAndServe(addr string) (err error) {
+	if addr == "" {
+		addr = os.Getenv("LISTEN")
+		if addr == "" {
+			port := os.Getenv("PORT")
+			if port == "" {
+				port = "8080"
+			}
+			addr = fmt.Sprintf("0.0.0.0:%s", port)
+		}
+	}
+
+	Logger.Info("starting at %s...", addr)
+	if err = http.ListenAndServe(addr, r); err != nil {
+		Logger.Fatal("unable to listen: %s", err)
+	}
+	return
 }
 
 func NewRouter() *Router {
