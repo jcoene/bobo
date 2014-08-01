@@ -17,6 +17,10 @@ type Error struct {
 	Error string `json:"error"`
 }
 
+type Errors struct {
+	Errors ValidationErrors `json:"errors"`
+}
+
 var OK = map[string]string{"status": "ok"}
 
 type ErrorHandler func(error) http.Handler

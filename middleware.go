@@ -64,9 +64,15 @@ func JSON(name string, fn func(*http.Request) (interface{}, bool, error)) http.H
 		t := time.Now()
 		obj, found, err := fn(req)
 		if err != nil {
-			getSentry().CaptureError(err, map[string]string{}, raven.NewHttp(req))
-			statsd.Count(fmt.Sprintf("service.%s.error", name), 1)
-			ServerError(err).ServeHTTP(rw, req)
+			switch err.(type) {
+			case ValidationErrors:
+				WriteJSON(400, &Errors{err.(ValidationErrors)}).ServeHTTP(rw, req)
+				return
+			default:
+				getSentry().CaptureError(err, map[string]string{}, raven.NewHttp(req))
+				statsd.Count(fmt.Sprintf("service.%s.error", name), 1)
+				ServerError(err).ServeHTTP(rw, req)
+			}
 			return
 		}
 
