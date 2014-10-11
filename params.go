@@ -3,6 +3,7 @@ package bobo
 import (
 	"net/url"
 	"strconv"
+	"strings"
 )
 
 type Params url.Values
@@ -51,4 +52,18 @@ func (p Params) Map() (result map[string]string) {
 		}
 	}
 	return
+}
+
+func (p Params) Int64s(key string) []int64 {
+	ns := make([]int64, 0)
+	val := p.Get(key)
+	ss := strings.Split(val, ",")
+	for _, s := range ss {
+		n, err := strconv.ParseInt(s, 10, 0)
+		if err == nil {
+			ns = append(ns, n)
+		}
+	}
+
+	return ns
 }
