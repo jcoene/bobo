@@ -23,6 +23,11 @@ func (p Params) Get(key string) string {
 	return vs[0]
 }
 
+func (p Params) Int(key string) int {
+	n, _ := strconv.Atoi(p.Get(key))
+	return n
+}
+
 func (p Params) Int64(key string) int64 {
 	n, _ := strconv.ParseInt(p.Get(key), 10, 0)
 	return n

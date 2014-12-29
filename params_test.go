@@ -34,6 +34,20 @@ func TestParamsInt64(t *testing.T) {
 	}
 }
 
+func TestParamsInt(t *testing.T) {
+	vals := url.Values{}
+	vals.Add("id", "101405")
+	params := Params(vals)
+
+	if params.Int("id") != int(101405) {
+		t.Errorf("unexpected value: %d", params.Int("id"))
+	}
+
+	if params.Int("z") != int(0) {
+		t.Errorf("unexpected value: %d", params.Int("z"))
+	}
+}
+
 func TestParamsInt32(t *testing.T) {
 	vals := url.Values{}
 	vals.Add("id", "101405")
