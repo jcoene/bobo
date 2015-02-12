@@ -16,6 +16,14 @@ var Logger = logger.NewDefaultLogger("service")
 var sentry *raven.Client
 var sentryMu sync.Mutex
 
+type ServiceUnavailableError struct {
+	Err error
+}
+
+func (e ServiceUnavailableError) Error() string {
+	return e.Err.Error()
+}
+
 func getSentry() *raven.Client {
 	sentryMu.Lock()
 	if sentry == nil {
@@ -68,7 +76,7 @@ func JSON(name string, fn func(*http.Request) (interface{}, bool, error)) http.H
 			case ValidationErrors:
 				WriteJSON(400, &Errors{err.(ValidationErrors)}).ServeHTTP(rw, req)
 				return
-			case TimeoutError:
+			case TimeoutError, ServiceUnavailableError:
 				statsd.Count(fmt.Sprintf("service.%s.timeout", name), 1)
 				WriteJSON(503, &Error{err.Error()}).ServeHTTP(rw, req)
 			default:
