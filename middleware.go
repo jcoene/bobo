@@ -59,10 +59,10 @@ func Recovery(handler http.Handler) http.Handler {
 func Logging(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		t := time.Now()
-		Logger.Info("method=%s path=%s action=start", req.Method, req.URL.Path)
+		Logger.Info("method=%s path=%s action=start", req.Method, req.URL.RequestURI())
 		handler.ServeHTTP(rw, req)
 		resp := rw.(Response)
-		Logger.Info("method=%s path=%s result=%d duration=%v", req.Method, req.URL.Path, resp.Status(), time.Since(t))
+		Logger.Info("method=%s path=%s result=%d duration=%v", req.Method, req.URL.RequestURI(), resp.Status(), time.Since(t))
 	})
 }
 
