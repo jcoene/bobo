@@ -3,6 +3,7 @@ package bobo
 import (
 	"fmt"
 	"net/http"
+	"net/http/httputil"
 	"os"
 	"sync"
 	"time"
@@ -31,6 +32,17 @@ func getSentry() *raven.Client {
 	}
 	sentryMu.Unlock()
 	return sentry
+}
+
+// Request dumping middleware
+func RequestDebugging(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		if b, err := httputil.DumpRequest(req, true); err == nil {
+			fmt.Println(string(b))
+		}
+
+		handler.ServeHTTP(rw, req)
+	})
 }
 
 // Panic recovery middleware
