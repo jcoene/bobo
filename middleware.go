@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/getsentry/raven-go"
+	"github.com/golang/protobuf/proto"
 	"github.com/jcoene/gologger"
 	"github.com/jcoene/statsd-client"
 )
@@ -105,8 +106,20 @@ func JSON(name string, fn func(*http.Request) (interface{}, bool, error)) http.H
 			return
 		}
 
+		// Determine whether or not the client wants protobuf
+		acceptPb := req.Header.Get("Accept") == CONTENT_TYPE_PROTOBUF
+
+		// Determine whether or not we have a proto.Message
+		objPb, isPb := obj.(proto.Message)
+
+		// Write protobuf if we can, otherwise write JSON
+		if isPb && acceptPb {
+			WritePB(200, objPb).ServeHTTP(rw, req)
+		} else {
+			WriteJSON(200, obj).ServeHTTP(rw, req)
+		}
+
 		statsd.Count(fmt.Sprintf("service.%s.success", name), 1)
 		statsd.MeasureDur(fmt.Sprintf("service.%s.runtime", name), time.Since(t))
-		WriteJSON(200, obj).ServeHTTP(rw, req)
 	})
 }
