@@ -1,6 +1,8 @@
 package bobo
 
 import (
+	"bufio"
+	"net"
 	"net/http"
 )
 
@@ -40,4 +42,8 @@ func (r *response) Written() bool {
 
 func (r *response) Status() int {
 	return r.status
+}
+
+func (r *response) Hijack() (net.Conn, *bufio.ReadWriter, error) {
+	return r.ResponseWriter.(http.Hijacker).Hijack()
 }
